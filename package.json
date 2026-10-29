@@ -1,0 +1,463 @@
+{
+  "name": "mermaidforge",
+  "displayName": "MermaidForge — AI Mermaid Studio",
+  "description": "An AI-assisted Mermaid diagramming workspace: live preview, formatter, linter, refactoring, complexity analysis, and multi-provider AI diagram generation, all inside VS Code.",
+  "version": "0.1.1",
+  "publisher": "AnandShah",
+  "author": "Anand Shah",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AnandShah10/MermaidForge"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Visualization",
+    "Programming Languages",
+    "Formatters",
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "mermaid",
+    "diagram",
+    "ai",
+    "architecture",
+    "documentation",
+    "uml"
+  ],
+  "activationEvents": [
+    "onLanguage:mermaid",
+    "onLanguage:markdown"
+  ],
+  "main": "./dist/extension.js",
+  "icon": "resources/icon.png",
+  "contributes": {
+    "languages": [
+      {
+        "id": "mermaid",
+        "aliases": [
+          "Mermaid",
+          "mermaid"
+        ],
+        "extensions": [
+          ".mmd",
+          ".mermaid"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "mermaid",
+        "scopeName": "source.mermaid",
+        "path": "./syntaxes/mermaid.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "mermaidForge.openPreview",
+        "title": "Mermaid: Open Preview",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "mermaidForge.openStudio",
+        "title": "MermaidForge: Open Studio"
+      },
+      {
+        "command": "mermaidForge.formatDocument",
+        "title": "Mermaid: Format Document"
+      },
+      {
+        "command": "mermaidForge.formatSelection",
+        "title": "Mermaid: Format Selection"
+      },
+      {
+        "command": "mermaidForge.lintDiagram",
+        "title": "Mermaid: Lint Diagram"
+      },
+      {
+        "command": "mermaidForge.analyzeComplexity",
+        "title": "Mermaid: Analyze Complexity"
+      },
+      {
+        "command": "mermaidForge.exportDiagram",
+        "title": "Mermaid: Export Diagram"
+      },
+      {
+        "command": "mermaidForge.compareWithGit",
+        "title": "Mermaid: Compare With Git (HEAD)"
+      },
+      {
+        "command": "mermaidForge.renameNode",
+        "title": "Mermaid: Rename Node Everywhere"
+      },
+      {
+        "command": "mermaidForge.extractSubgraph",
+        "title": "Mermaid: Extract Subgraph From Selection"
+      },
+      {
+        "command": "mermaidForge.removeUnusedNodes",
+        "title": "Mermaid: Remove Unused Nodes"
+      },
+      {
+        "command": "mermaidForge.navigateDiagrams",
+        "title": "Mermaid: Navigate Diagrams (Refresh Index)"
+      },
+      {
+        "command": "mermaidForge.ai.generateDiagram",
+        "title": "AI Mermaid: Generate Diagram"
+      },
+      {
+        "command": "mermaidForge.ai.explainDiagram",
+        "title": "AI Mermaid: Explain Diagram"
+      },
+      {
+        "command": "mermaidForge.ai.improveDiagram",
+        "title": "AI Mermaid: Improve Diagram"
+      },
+      {
+        "command": "mermaidForge.ai.fixDiagram",
+        "title": "AI Mermaid: Fix Diagram"
+      },
+      {
+        "command": "mermaidForge.ai.modifyDiagram",
+        "title": "AI Mermaid: Modify Diagram (Natural Language)"
+      },
+      {
+        "command": "mermaidForge.ai.askAboutDiagram",
+        "title": "AI Mermaid: Ask About Diagram"
+      },
+      {
+        "command": "mermaidForge.ai.reviewArchitecture",
+        "title": "AI Mermaid: Review Architecture"
+      },
+      {
+        "command": "mermaidForge.ai.configureProvider",
+        "title": "AI Mermaid: Configure Provider"
+      },
+      {
+        "command": "mermaidForge.convertDrawio",
+        "title": "Mermaid: Convert Draw.io to Mermaid"
+      },
+      {
+        "command": "mermaidForge.presentationMode",
+        "title": "Mermaid: Presentation Mode"
+      },
+      {
+        "command": "mermaidForge.comments.add",
+        "title": "Mermaid: Add Comment"
+      },
+      {
+        "command": "mermaidForge.generateFromCode",
+        "title": "Mermaid: Generate From Code"
+      },
+      {
+        "command": "mermaidForge.generateFromGitHistory",
+        "title": "Mermaid: Generate Timeline From Git History"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "mermaidForge.openPreview",
+          "when": "editorLangId == mermaid",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "submenu": "mermaidForge.editorContext",
+          "when": "editorLangId == mermaid",
+          "group": "1_mermaidForge"
+        }
+      ],
+      "mermaidForge.editorContext": [
+        {
+          "command": "mermaidForge.formatDocument"
+        },
+        {
+          "command": "mermaidForge.ai.explainDiagram"
+        },
+        {
+          "command": "mermaidForge.ai.improveDiagram"
+        },
+        {
+          "command": "mermaidForge.ai.fixDiagram"
+        },
+        {
+          "command": "mermaidForge.ai.modifyDiagram"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "mermaidForge.navigateDiagrams",
+          "when": "view == mermaidForge.diagramNavigator",
+          "group": "navigation"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "mermaidForge.editorContext",
+        "label": "MermaidForge"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "mermaidForge.diagramNavigator",
+          "name": "Mermaid Diagrams"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "MermaidForge",
+      "properties": {
+        "mermaidForge.ai.defaultProvider": {
+          "type": "string",
+          "enum": [
+            "openai",
+            "azure",
+            "anthropic",
+            "google",
+            "ollama",
+            "custom"
+          ],
+          "default": "anthropic",
+          "description": "The AI provider used by AI Mermaid commands when none is specified."
+        },
+        "mermaidForge.ai.defaultModel": {
+          "type": "string",
+          "default": "",
+          "description": "Default model id for the selected provider. Leave empty to be prompted."
+        },
+        "mermaidForge.ai.temperature": {
+          "type": "number",
+          "default": 0.2,
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Sampling temperature used for AI Mermaid generation requests."
+        },
+        "mermaidForge.ai.sendWorkspaceContext": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow AI features to include related workspace file context (e.g. for code-aware generation). Off by default."
+        },
+        "mermaidForge.ai.sendSourceContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow AI features to send the current Mermaid source of the active diagram. Required for explain/fix/improve/modify."
+        },
+        "mermaidForge.ai.maxContextTokens": {
+          "type": "number",
+          "default": 4000,
+          "description": "Soft budget for tokens included in AI context (diagram + related context)."
+        },
+        "mermaidForge.ai.providers.openai.baseUrl": {
+          "type": "string",
+          "default": "https://api.openai.com/v1",
+          "description": "Base URL for the OpenAI API."
+        },
+        "mermaidForge.ai.providers.azure.endpoint": {
+          "type": "string",
+          "default": "",
+          "description": "Azure OpenAI resource endpoint, e.g. https://my-resource.openai.azure.com"
+        },
+        "mermaidForge.ai.providers.azure.deployment": {
+          "type": "string",
+          "default": "",
+          "description": "Azure OpenAI deployment name."
+        },
+        "mermaidForge.ai.providers.azure.apiVersion": {
+          "type": "string",
+          "default": "2024-06-01",
+          "description": "Azure OpenAI API version."
+        },
+        "mermaidForge.ai.providers.anthropic.baseUrl": {
+          "type": "string",
+          "default": "https://api.anthropic.com/v1",
+          "description": "Base URL for the Anthropic API."
+        },
+        "mermaidForge.ai.providers.google.baseUrl": {
+          "type": "string",
+          "default": "https://generativelanguage.googleapis.com/v1beta",
+          "description": "Base URL for the Google Gemini API."
+        },
+        "mermaidForge.ai.providers.ollama.host": {
+          "type": "string",
+          "default": "http://localhost:11434",
+          "description": "Host URL for a local or remote Ollama server."
+        },
+        "mermaidForge.ai.providers.custom.baseUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Base URL for a custom OpenAI-compatible endpoint."
+        },
+        "mermaidForge.ai.providers.custom.headers": {
+          "type": "object",
+          "default": {},
+          "description": "Additional headers sent with custom-provider requests (values only — do not put secrets here; use 'AI Mermaid: Configure Provider' for API keys)."
+        },
+        "mermaidForge.formatter.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Register MermaidForge as a formatting provider for Mermaid files."
+        },
+        "mermaidForge.formatter.formatOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Format Mermaid documents on save."
+        },
+        "mermaidForge.formatter.indentSize": {
+          "type": "number",
+          "default": 2,
+          "description": "Number of spaces used for indentation by the formatter."
+        },
+        "mermaidForge.linter.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Mermaid diagnostics in the Problems panel."
+        },
+        "mermaidForge.linter.rules.duplicateNode": {
+          "type": "string",
+          "enum": [
+            "off",
+            "warning",
+            "error"
+          ],
+          "default": "warning"
+        },
+        "mermaidForge.linter.rules.duplicateEdge": {
+          "type": "string",
+          "enum": [
+            "off",
+            "warning",
+            "error"
+          ],
+          "default": "warning"
+        },
+        "mermaidForge.linter.rules.unreachableNode": {
+          "type": "string",
+          "enum": [
+            "off",
+            "warning",
+            "error"
+          ],
+          "default": "warning"
+        },
+        "mermaidForge.linter.rules.emptySubgraph": {
+          "type": "string",
+          "enum": [
+            "off",
+            "warning",
+            "error"
+          ],
+          "default": "warning"
+        },
+        "mermaidForge.linter.rules.invalidReference": {
+          "type": "string",
+          "enum": [
+            "off",
+            "warning",
+            "error"
+          ],
+          "default": "error"
+        },
+        "mermaidForge.linter.rules.longLabel": {
+          "type": "string",
+          "enum": [
+            "off",
+            "warning",
+            "error"
+          ],
+          "default": "off"
+        },
+        "mermaidForge.linter.longLabelThreshold": {
+          "type": "number",
+          "default": 60
+        },
+        "mermaidForge.preview.theme": {
+          "type": "string",
+          "enum": [
+            "default",
+            "dark",
+            "forest",
+            "neutral",
+            "base"
+          ],
+          "default": "default",
+          "description": "Mermaid theme used by the live preview and Studio."
+        },
+        "mermaidForge.preview.background": {
+          "type": "string",
+          "default": "white",
+          "description": "Background color used by the preview/export (CSS color, or 'transparent')."
+        },
+        "mermaidForge.export.defaultFormat": {
+          "type": "string",
+          "enum": [
+            "svg",
+            "png",
+            "pdf"
+          ],
+          "default": "svg"
+        },
+        "mermaidForge.export.scale": {
+          "type": "number",
+          "default": 2,
+          "description": "Raster export scale factor for PNG export."
+        },
+        "mermaidForge.complexity.threshold": {
+          "type": "number",
+          "default": 7,
+          "description": "Complexity score (0-10) above which MermaidForge recommends splitting a diagram."
+        },
+        "mermaidForge.navigator.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the Mermaid Diagrams navigator view and workspace scanning."
+        },
+        "mermaidForge.comments.authorName": {
+          "type": "string",
+          "default": "",
+          "description": "Name attached to diagram comments you add. Defaults to your OS username if left empty."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "compile": "tsc --noEmit -p ./ && tsc --noEmit -p tsconfig.webview.json",
+    "lint": "eslint src --ext ts",
+    "test": "vitest run",
+    "conformance": "node scripts/conformance.mjs",
+    "webview-smoke": "node scripts/webview-smoke.mjs",
+    "pdf-e2e": "node scripts/pdf-e2e.mjs",
+    "presentation-smoke": "node scripts/presentation-smoke.mjs",
+    "refactor-conformance": "node scripts/refactor-conformance.mjs",
+    "package": "npx @vscode/vsce package",
+    "gantt-conformance": "node scripts/gantt-conformance.mjs",
+    "styling-conformance": "node scripts/styling-conformance.mjs",
+    "realrepo": "node scripts/realrepo-analyze.mjs"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "esbuild": "^0.28.2",
+    "eslint": "^8.57.0",
+    "jsdom": "^30.0.1",
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "mermaid": "^12.2.0",
+    "typescript": "^5.9.3"
+  }
+}

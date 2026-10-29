@@ -1,0 +1,34 @@
+{
+ "sankey": {
+  "valid": ["sankey-beta\n\nA,B,10\nB,C,5\n", "sankey-beta\nSource,Target,Value\nA,\"B, Inc\",3.5\n"],
+  "invalid": []
+ },
+ "quadrantChart": {
+  "valid": ["quadrantChart\n title Reach\n x-axis Low Reach --> High Reach\n y-axis Low --> High\n quadrant-1 We should expand\n quadrant-2 Need to promote\n quadrant-3 Re-evaluate\n quadrant-4 May be improved\n Campaign A: [0.3, 0.6]\n Campaign B: [0.45, 0.23]\n", "quadrantChart\n x-axis Left\n y-axis Bottom\n P1: [0.1, 0.9]\n"],
+  "invalid": []
+ },
+ "xychart": {
+  "valid": ["xychart-beta\n title \"Sales\"\n x-axis [jan, feb, mar]\n y-axis \"Revenue\" 4000 --> 11000\n bar [5000, 6000, 7500]\n line [5000, 6000, 7500]\n", "xychart-beta horizontal\n x-axis [a, b]\n bar [1, 2]\n"],
+  "invalid": []
+ },
+ "packet": {
+  "valid": ["packet-beta\n 0-15: \"Source Port\"\n 16-31: \"Destination Port\"\n 32-63: \"Sequence Number\"\n"],
+  "invalid": []
+ },
+ "requirementDiagram": {
+  "valid": ["requirementDiagram\n requirement test_req {\n id: 1\n text: the test text.\n risk: high\n verifymethod: test\n }\n element test_entity {\n type: simulation\n }\n test_entity - satisfies -> test_req\n", "requirementDiagram\n functionalRequirement a {\n id: 2\n text: t\n risk: low\n verifymethod: inspection\n }\n performanceRequirement b {\n id: 3\n text: t\n risk: medium\n verifymethod: analysis\n }\n a - contains -> b\n"],
+  "invalid": []
+ },
+ "block": {
+  "valid": ["block-beta\n columns 3\n a b c\n", "block-beta\n columns 3\n a[\"A label\"] b:2\n c d e\n a --> b\n", "block-beta\n block:group1:2\n columns 2\n x y\n end\n z\n"],
+  "invalid": []
+ },
+ "architecture": {
+  "valid": ["architecture-beta\n group api(cloud)[API]\n service db(database)[Database] in api\n service server(server)[Server] in api\n db:L -- R:server\n"],
+  "invalid": []
+ },
+ "c4": {
+  "valid": ["C4Context\n title System Context\n Person(customerA, \"Customer A\", \"A customer\")\n System(SystemAA, \"Banking System\", \"Allows customers\")\n Rel(customerA, SystemAA, \"Uses\")\n", "C4Container\n Person(u, \"User\")\n System_Boundary(b, \"Bank\") {\n Container(web, \"Web\", \"React\", \"UI\")\n ContainerDb(db, \"DB\", \"SQL\", \"Data\")\n }\n Rel(u, web, \"Uses\", \"HTTPS\")\n Rel(web, db, \"Reads\")\n"],
+  "invalid": []
+ }
+}

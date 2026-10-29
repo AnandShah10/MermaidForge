@@ -1,0 +1,113 @@
+{
+ "sankey": {
+  "valid": [
+   "sankey-beta\nA,B,1\n\n\nB,C,2\n",
+   "sankey-beta\n\"a b\",\"c\"\"d\",3\n",
+   "sankey-beta\n%% comment\nA,B,1.5\nB,\"C d\",0.5\n"
+  ],
+  "invalid": [
+   "sankey-beta\nA,B\n"
+  ]
+ },
+ "quadrantChart": {
+  "valid": [
+   "quadrantChart\n x-axis Low\n y-axis High --> Higher\n A:::c1: [0.2, 0.8]\n classDef c1 color: #ff0000\n",
+   "quadrantChart\n title T\n x-axis a --> b\n y-axis c --> d\n quadrant-1 q\n A: [0, 1]\n",
+   "quadrantChart\n title T\n x-axis \"Left side\" --> \"Right side\"\n y-axis Bottom --> Top\n quadrant-1 A\n quadrant-2 B\n quadrant-3 C\n quadrant-4 D\n P1: [0.5, 0.5] radius: 12\n P2: [0.1, 0.1] color: #ff3300, radius: 8\n"
+  ],
+  "invalid": [
+   "quadrantChart\n A: [0.1]\n",
+   "quadrantChart\n A: [x, y]\n"
+  ]
+ },
+ "xychart": {
+  "valid": [
+   "xychart-beta\n x-axis 0 --> 10\n y-axis 0 --> 5\n line [1,2,3]\n",
+   "xychart-beta\n title \"t\"\n x-axis \"T\" [a, b, c]\n bar \"s\" [1, 2, 3]\n",
+   "xychart-beta\n title \"T\"\n x-axis \"cats\" [a, b, c]\n y-axis \"vals\" 0 --> 100\n bar [10, 20, 30]\n line [15, 25, 35]\n",
+   "xychart-beta\n x-axis [\"a b\", \"c d\"]\n line [1.5, -2]\n"
+  ],
+  "invalid": [
+   "xychart-beta\n bar [1, 2\n",
+   "xychart-beta\n x-axis [a,b]\n bar [x]\n"
+  ]
+ },
+ "packet": {
+  "valid": [
+   "packet-beta\n 0: \"Flag\"\n 1-7: \"Rest\"\n",
+   "packet-beta\n title Hdr\n 0-7: \"A\"\n 8-15: \"B\"\n",
+   "packet-beta\n 0-3: \"A\"\n 4-7: \"B\"\n 8-31: \"C\"\n"
+  ],
+  "invalid": [
+   "packet-beta\n 5-2: \"bad\"\n",
+   "packet-beta\n abc\n"
+  ]
+ },
+ "requirementDiagram": {
+  "valid": [
+   "requirementDiagram\n designConstraint d {\n id: 9\n text: t\n risk: low\n verifymethod: demonstration\n }\n physicalRequirement p {\n id: 8\n text: t\n risk: high\n verifymethod: test\n }\n interfaceRequirement i {\n id: 7\n text: t\n risk: medium\n verifymethod: test\n }\n d - refines -> p\n p - traces -> i\n i - derives -> d\n",
+   "requirementDiagram\n requirement r1 {\n id: 1\n text: \"quoted text\"\n risk: Low\n verifymethod: Test\n }\n element e1 {\n type: \"sim\"\n docref: \"repo/x\"\n }\n element e2 {\n type: t\n }\n e1 - verifies -> r1\n e2 - copies -> r1\n r1 - contains -> r1\n",
+   "requirementDiagram\n requirement r1:::imp {\n id: 1\n text: t\n risk: high\n verifymethod: test\n }\n element e1 {\n type: sim\n }\n e1 - satisfies -> r1\n classDef imp fill:#f00\n class e1 imp\n style r1 fill:#0f0\n"
+  ],
+  "invalid": [
+   "requirementDiagram\n requirement r {\n id: 1\n text: t\n risk: extreme\n verifymethod: test\n }\n",
+   "requirementDiagram\n a - satisfies b\n"
+  ]
+ },
+ "block": {
+  "valid": [
+   "block-beta\n columns 1\n a\n space\n b\n a --> b\n",
+   "block-beta\n a:3 b\n",
+   "block-beta\n a\n b\n a -- \"lbl\" --> b\n",
+   "block-beta\n a[\"x\"] b(\"y\") c((\"z\")) d{{\"w\"}}\n",
+   "block-beta\n columns 4\n block:g:2\n a b\n end\n c d\n block:h\n e\n end\n g --> h\n",
+   "block-beta\n columns 3\n a[\"A\"]:3\n b[\"B\"] c[\"C\"] d[\"D\"]\n space:2 e\n",
+   "block-beta\n columns 2\n a b\n classDef k fill:#f00\n class a k\n style b fill:#0f0\n"
+  ],
+  "invalid": [
+   "block-beta\n a[\"unterminated\n",
+   "block-beta\n a[x]\n",
+   "block-beta\n c((z))\n"
+  ]
+ },
+ "architecture": {
+  "valid": [
+   "architecture-beta\n service a(server)[A]\n service b(server)[B]\n junction j\n a:R -- L:j\n j:R --> L:b\n",
+   "architecture-beta\n group g(cloud)[G]\n service s(server)[S] in g\n group h(cloud)[H] in g\n",
+   "architecture-beta\n service x(internet)[X]\n service y(disk)[Y]\n x:B -[lbl]- T:y\n",
+   "architecture-beta\n group a(cloud)[A]\n group b(cloud)[B]\n service s1(server)[S1] in a\n service s2(server)[S2] in b\n s1{group}:R -- L:s2{group}\n",
+   "architecture-beta\n service x(internet)[X]\n service y(disk)[Y]\n x:B <-[lbl]-> T:y\n"
+  ],
+  "invalid": [
+   "architecture-beta\n service\n",
+   "architecture-beta\n group a(cloud)[A]\n service s1(server)[S1] in a\n service s2(server)[S2] in a\n s1{group}:R -- L:s2\n"
+  ]
+ },
+ "c4": {
+  "valid": [
+   "C4Component\n Container_Boundary(c, \"C\") {\n Component(a, \"A\", \"Go\", \"d\")\n }\n Rel(a, a, \"x\")\n",
+   "C4Dynamic\n Person(u, \"U\")\n System(s, \"S\")\n RelIndex(1, u, s, \"x\")\n",
+   "C4Deployment\n Deployment_Node(n, \"N\", \"Linux\") {\n Container(c, \"C\", \"Go\")\n }\n",
+   "C4Context\n Person_Ext(u, \"U\")\n System_Ext(s, \"S\")\n BiRel(u, s, \"x\")\n UpdateRelStyle(u, s, $textColor=\"red\")\n",
+   "C4Context\n title T\n Enterprise_Boundary(b0, \"Bank\") {\n Person(a, \"A\", \"d\", $sprite=\"x\")\n System(s, \"S\", \"d\", $tags=\"t\")\n }\n System_Boundary(b1, \"B1\") {\n SystemDb(db, \"DB\", \"d\")\n SystemQueue(q, \"Q\", \"d\")\n }\n Rel(a, s, \"Uses\", \"HTTPS\")\n Rel_U(s, db, \"r\")\n Rel_D(s, q, \"w\")\n Rel_L(a, db, \"x\")\n Rel_R(a, q, \"y\")\n UpdateElementStyle(a, $fontColor=\"red\", $bgColor=\"grey\")\n UpdateLayoutConfig($c4ShapeInRow=\"3\", $c4BoundaryInRow=\"1\")\n",
+   "C4Container\n Person(p, \"P\")\n Container_Ext(c, \"C\", \"Java\", \"d\")\n ContainerDb_Ext(d, \"D\", \"SQL\")\n ContainerQueue(q, \"Q\", \"MQ\")\n Rel(p, c, \"u\")\n Rel(c, d, \"r\")\n Rel(c, q, \"p\")\n",
+   "C4Context\n Person(a, \"A\")\n System(b, \"B\")\n Rel(a, b, \"uses\")\n UpdateElementStyle(a, $bgColor=\"red\")\n UpdateRelStyle(a, b, $textColor=\"blue\")\n UpdateLayoutConfig($c4ShapeInRow=\"2\", $c4BoundaryInRow=\"1\")\n"
+  ],
+  "invalid": [
+   "C4Context\n Rel(a, b\n",
+   "C4Deployment\n Deployment_Node_L(l, \"L\") {\n Container(c2, \"C2\", \"Go\")\n }\n"
+  ]
+ },
+ "stateDiagram": {
+  "valid": [
+   "stateDiagram-v2\n [*] --> A\n state A {\n [*] --> B\n B --> [*]\n --\n [*] --> C\n }\n A --> [*]\n"
+  ],
+  "invalid": []
+ },
+ "gantt": {
+  "valid": [
+   "gantt\n dateFormat YYYY-MM-DD\n excludes weekends\n section S\n a :a, 2024-01-04, 3d\n b :b, after a, 2w\n c :c, 2024-02-31, 1d\n"
+  ],
+  "invalid": []
+ }
+}

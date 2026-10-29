@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Mermaid",
+  "scopeName": "source.mermaid",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#keywords" },
+    { "include": "#strings" },
+    { "include": "#arrows" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [{ "name": "comment.line.percentage.mermaid", "match": "%%.*$" }]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.mermaid",
+          "match": "\\b(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|stateDiagram-v2|erDiagram|journey|gantt|pie|mindmap|timeline|gitGraph|quadrantChart|requirementDiagram|subgraph|end|classDef|class|style|click|direction|TD|TB|BT|LR|RL)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [{ "name": "string.quoted.double.mermaid", "match": "\"[^\"]*\"" }]
+    },
+    "arrows": {
+      "patterns": [{ "name": "keyword.operator.mermaid", "match": "(-->|---|-\\.->|-\\.-|==>|===|--x|--o|->>|-->>|-x|--\\))" }]
+    }
+  }
+}
