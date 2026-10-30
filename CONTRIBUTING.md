@@ -13,6 +13,7 @@ npm install
 ```bash
 npm run compile   # type-check src/ (Node target) and src/webviews/media (browser target)
 npm test          # vitest, tests/*.test.ts — pure logic only, no vscode/network dependency
+npm run ui-smoke  # headless Chromium check of the diagram webview (needs Playwright, see scripts/ui-smoke.mjs)
 npm run watch     # esbuild --watch, for use alongside F5
 ```
 

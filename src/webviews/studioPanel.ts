@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { runToolbarAction } from './toolbarActions';
 import { BaseWebviewPanel, WebviewMessage } from './webviewPanel';
 import { buildStudioHtml } from './html/studioTemplate';
 import { extractDiagramSourceForActiveEditor } from '../workspace/activeDiagram';
@@ -37,9 +38,13 @@ export class StudioPanel extends BaseWebviewPanel {
   }
 
   protected onMessage(message: WebviewMessage): void {
+    if (this.handleBaseMessage(message)) return;
     switch (message.type) {
       case 'ready':
         this.updateDiagramNow();
+        break;
+      case 'toolbar':
+        void runToolbarAction(String(message.action), typeof message.format === 'string' ? message.format : undefined, 'studio');
         break;
       case 'chatSend':
         void this.handleChat(String(message.text));
@@ -76,8 +81,9 @@ export class StudioPanel extends BaseWebviewPanel {
     this.post({
       type: 'update',
       source: active.source,
-      theme: config.get<string>('preview.theme') ?? 'default',
-      background: config.get<string>('preview.background') ?? 'white',
+      theme: config.get<string>('preview.theme') ?? 'auto',
+      background: config.get<string>('preview.background') ?? 'auto',
+      kind: parseMermaid(active.source).kind,
     });
 
     const diagram = parseMermaid(active.source);
@@ -102,6 +108,11 @@ export class StudioPanel extends BaseWebviewPanel {
     const documentKey = documentKeyForActiveDiagram(active);
     const comments = await this.commentStore.listComments(documentKey);
     this.post({ type: 'commentsUpdate', html: renderCommentsHtml(comments) });
+    this.post({
+      type: 'comments',
+      kind: parseMermaid(active.source).kind,
+      items: comments.map((c) => ({ id: c.id, targetType: c.targetType, targetId: c.targetId, author: c.author, text: c.text, resolved: c.resolved })),
+    });
   }
 
   private async handleCommentAdd(target: string, text: string): Promise<void> {

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.2
+
+- Fixed: **Format Selection** did nothing useful — the selected text was formatted on its own, without the diagram around it, so indentation was wrong and the diagram header was misread; it also didn't work in Markdown. It now formats exactly the selected lines using the whole diagram's context (flowcharts reformat the whole diagram and say so), works on the ```` ```mermaid ```` block under the cursor in Markdown, and VS Code's own "Format Selection" works in `.mmd` files (range formatting provider)
+- Fixed: some diagrams opened off-centre or partly outside the view (the pan/zoom transform dropped the centring offset); diagrams are now centred on open, on Fit, after zoom, and zoom keeps the point under the cursor fixed
+- Docs: marketplace-ready README with GitHub-only badges; added FEATURES, LIMITATIONS, ROADMAP, SUPPORT, SECURITY, CODE_OF_CONDUCT, GitHub issue/PR templates and a CI workflow
+- UI: toolbar (Viewer, Present, Studio, Export ▾ SVG/PNG/PDF, Comment, zoom/Fit) in the Preview, Viewer, Presentation and Studio views and Viewer/Present/Studio/Export buttons in the editor title bar; new **Mermaid Viewer** (diagram instead of code) with **Return to code**; Presentation mode now has its own panel title, panel and Return to code; fit-to-view; comment count badges on nodes plus a comment list
+- Fixed: "Failed to rasterize SVG for PNG export" — the webview's Content-Security-Policy did not allow the `blob:` image the exporter loaded; PNG now goes through a data URL with an explicit size
+- Fixed: a Mermaid syntax-error graphic (and our red banner) stayed on screen after the source was fixed — errors are detected with `mermaid.parse`, Mermaid's own error drawing is suppressed, and leftover elements are removed after each render
+- Changed: `preview.theme` and `preview.background` default to `auto` (dark theme/editor background in dark VS Code themes; exports stay light on white). Studio no longer shows a white canvas in dark themes
+
 ## 0.1.1
 
 - Fixed: ASP.NET minimal-API apps built in one chained expression (`WebApplication.CreateBuilder(args).Build()`) were not detected; Python call graphs now read one-line `def f(): ...` bodies and type `self.x = x` from annotated parameters; C++ `Circle c(2);` locals are typed

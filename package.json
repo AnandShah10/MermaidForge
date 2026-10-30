@@ -2,7 +2,7 @@
   "name": "mermaidforge",
   "displayName": "MermaidForge — AI Mermaid Studio",
   "description": "An AI-assisted Mermaid diagramming workspace: live preview, formatter, linter, refactoring, complexity analysis, and multi-provider AI diagram generation, all inside VS Code.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "AnandShah",
   "author": "Anand Shah",
   "repository": {
@@ -59,12 +59,23 @@
     "commands": [
       {
         "command": "mermaidForge.openPreview",
-        "title": "Mermaid: Open Preview",
+        "title": "Mermaid: Open Preview (side by side)",
         "icon": "$(open-preview)"
       },
       {
+        "command": "mermaidForge.openViewer",
+        "title": "Mermaid: Open Viewer (diagram instead of code)",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "mermaidForge.returnToCode",
+        "title": "Mermaid: Return to Code",
+        "icon": "$(go-to-file)"
+      },
+      {
         "command": "mermaidForge.openStudio",
-        "title": "MermaidForge: Open Studio"
+        "title": "Mermaid: Open Studio",
+        "icon": "$(layout-sidebar-right)"
       },
       {
         "command": "mermaidForge.formatDocument",
@@ -84,7 +95,8 @@
       },
       {
         "command": "mermaidForge.exportDiagram",
-        "title": "Mermaid: Export Diagram"
+        "title": "Mermaid: Export Diagram",
+        "icon": "$(export)"
       },
       {
         "command": "mermaidForge.compareWithGit",
@@ -144,7 +156,8 @@
       },
       {
         "command": "mermaidForge.presentationMode",
-        "title": "Mermaid: Presentation Mode"
+        "title": "Mermaid: Presentation Mode",
+        "icon": "$(play)"
       },
       {
         "command": "mermaidForge.comments.add",
@@ -164,7 +177,27 @@
         {
           "command": "mermaidForge.openPreview",
           "when": "editorLangId == mermaid",
-          "group": "navigation"
+          "group": "navigation@1"
+        },
+        {
+          "command": "mermaidForge.openViewer",
+          "when": "(editorLangId == mermaid || editorLangId == markdown)",
+          "group": "navigation@2"
+        },
+        {
+          "command": "mermaidForge.presentationMode",
+          "when": "(editorLangId == mermaid || editorLangId == markdown)",
+          "group": "navigation@3"
+        },
+        {
+          "command": "mermaidForge.openStudio",
+          "when": "(editorLangId == mermaid || editorLangId == markdown)",
+          "group": "navigation@4"
+        },
+        {
+          "command": "mermaidForge.exportDiagram",
+          "when": "(editorLangId == mermaid || editorLangId == markdown)",
+          "group": "1_mermaid@1"
         }
       ],
       "editor/context": [
@@ -177,6 +210,10 @@
       "mermaidForge.editorContext": [
         {
           "command": "mermaidForge.formatDocument"
+        },
+        {
+          "command": "mermaidForge.formatSelection",
+          "when": "editorHasSelection"
         },
         {
           "command": "mermaidForge.ai.explainDiagram"
@@ -382,19 +419,20 @@
         "mermaidForge.preview.theme": {
           "type": "string",
           "enum": [
+            "auto",
             "default",
             "dark",
             "forest",
             "neutral",
             "base"
           ],
-          "default": "default",
-          "description": "Mermaid theme used by the live preview and Studio."
+          "default": "auto",
+          "description": "Mermaid theme for the preview, viewer, presentation and Studio. 'auto' follows the VS Code colour theme (dark theme in dark VS Code). Exports always use the light 'default' theme when this is 'auto'."
         },
         "mermaidForge.preview.background": {
           "type": "string",
-          "default": "white",
-          "description": "Background color used by the preview/export (CSS color, or 'transparent')."
+          "default": "auto",
+          "description": "Background of the diagram views and exports (CSS colour, 'transparent', or 'auto'). 'auto' uses the editor background in the views and white in exported files."
         },
         "mermaidForge.export.defaultFormat": {
           "type": "string",
@@ -443,7 +481,8 @@
     "package": "npx @vscode/vsce package",
     "gantt-conformance": "node scripts/gantt-conformance.mjs",
     "styling-conformance": "node scripts/styling-conformance.mjs",
-    "realrepo": "node scripts/realrepo-analyze.mjs"
+    "realrepo": "node scripts/realrepo-analyze.mjs",
+    "ui-smoke": "node scripts/ui-smoke.mjs"
   },
   "devDependencies": {
     "@types/jsdom": "^30.0.0",
@@ -459,5 +498,13 @@
   "dependencies": {
     "mermaid": "^12.2.0",
     "typescript": "^5.9.3"
+  },
+  "bugs": {
+    "url": "https://github.com/AnandShah10/MermaidForge/issues"
+  },
+  "homepage": "https://github.com/AnandShah10/MermaidForge#readme",
+  "galleryBanner": {
+    "color": "#1e1e2e",
+    "theme": "dark"
   }
 }

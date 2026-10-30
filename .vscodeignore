@@ -19,3 +19,11 @@ CONTRIBUTING.md
 scripts/**
 .conformance-build/**
 resources/icon.svg
+FEATURES.md
+LIMITATIONS.md
+CODE_OF_CONDUCT.md
+SECURITY.md
+SUPPORT.md
+ROADMAP.md
+.github/**
+.conformance-build/**

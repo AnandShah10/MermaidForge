@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import { currentDiagramEditor, extractDiagramFromDocument } from '../workspace/activeDiagram';
+import { formatRange } from '../core/formatter/formatRange';
 import { PreviewPanel } from '../webviews/previewPanel';
 import { StudioPanel } from '../webviews/studioPanel';
 import { DiagramIndexer } from '../workspace/indexer';
@@ -32,12 +34,77 @@ import { runGitHistoryTimelineCommand } from '../git/gitHistoryTimelineCommand';
 export interface CommandContext {
   extensionContext: vscode.ExtensionContext;
   preview: PreviewPanel;
+  viewer: PreviewPanel;
+  presentation: PreviewPanel;
   studio: StudioPanel;
   indexer: DiagramIndexer;
   diagnostics: DiagnosticsController;
   secrets: SecretsManager;
   logger: Logger;
   commentStore: CommentBackend;
+}
+
+/**
+ * Format Document / Format Selection for `.mmd` files and for the ```mermaid block under the cursor in Markdown
+ * (where VS Code's own formatter would not know about Mermaid). Selection mode formats just the selected lines.
+ */
+async function runFormatCommand(selectionOnly: boolean): Promise<void> {
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) {
+    void vscode.window.showInformationMessage('Open a Mermaid (.mmd) or Markdown file first.');
+    return;
+  }
+  const doc = editor.document;
+  const found = extractDiagramFromDocument(doc, editor.selection.active.line);
+  if (!found) {
+    void vscode.window.showInformationMessage(doc.languageId === 'markdown' ? 'No ```mermaid block found to format.' : 'This is not a Mermaid file.');
+    return;
+  }
+  const config = vscode.workspace.getConfiguration('mermaidForge');
+  const options = { indentSize: config.get<number>('formatter.indentSize', 2) };
+  const base = found.rangeInDocument ? found.rangeInDocument.start.line : 0;
+  const diagramRange = found.rangeInDocument ?? new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length));
+
+  let text: string;
+  let scope: 'selection' | 'diagram' = 'diagram';
+  const sel = editor.selection;
+  if (selectionOnly && !sel.isEmpty) {
+    const endLine = sel.end.character === 0 && sel.end.line > sel.start.line ? sel.end.line - 1 : sel.end.line;
+    const lastLine = base + found.source.split('\n').length - 1;
+    if (sel.start.line < base || endLine > lastLine) {
+      void vscode.window.showInformationMessage('Select lines inside one Mermaid diagram.');
+      return;
+    }
+    const r = formatRange(found.source, sel.start.line - base, endLine - base, options);
+    text = r.text;
+    scope = r.scope;
+  } else {
+    text = formatMermaid(found.source, options);
+  }
+  if (text === found.source) {
+    void vscode.window.showInformationMessage('Already formatted.');
+    return;
+  }
+  await editor.edit((b) => b.replace(diagramRange, text));
+  if (selectionOnly && !sel.isEmpty && scope === 'diagram') {
+    void vscode.window.showInformationMessage('Flowcharts are re-written as a whole, so the entire diagram was formatted, not just the selection.');
+  }
+}
+
+/** Opens a viewer/presentation panel for the Mermaid code the user is looking at. Returns false (with a hint) if there is none. */
+function openBound(panel: PreviewPanel): boolean {
+  const editor = currentDiagramEditor();
+  if (!editor) {
+    void vscode.window.showInformationMessage('Open a .mmd file, or place your cursor inside a ```mermaid block in Markdown.');
+    return false;
+  }
+  const found = extractDiagramFromDocument(editor.document, editor.selection.active.line);
+  if (!found) {
+    void vscode.window.showInformationMessage('No Mermaid diagram found at the cursor.');
+    return false;
+  }
+  panel.openFor(editor.document, editor.selection.active.line, editor.viewColumn ?? vscode.ViewColumn.Active);
+  return true;
 }
 
 export function registerCommands(ctx: CommandContext): void {
@@ -55,15 +122,23 @@ export function registerCommands(ctx: CommandContext): void {
       ctx.studio.reveal();
       ctx.studio.updateDiagramNow();
     }),
+    vscode.commands.registerCommand('mermaidForge.openViewer', () => openBound(ctx.viewer)),
     vscode.commands.registerCommand('mermaidForge.presentationMode', () => {
-      ctx.preview.reveal();
-      ctx.preview.updateNow();
-      // Give the preview a moment to render before applying step dimming to it.
-      setTimeout(() => ctx.preview.startPresentation(), 350);
+      if (openBound(ctx.presentation)) ctx.presentation.startPresentationAfterRender();
+    }),
+    vscode.commands.registerCommand('mermaidForge.returnToCode', async () => {
+      // Whichever bound panel is open and visible goes back to the code; with none visible, show the last Mermaid editor.
+      for (const p of [ctx.presentation, ctx.viewer]) {
+        if (p.isOpen && p.isVisible) { await p.returnToCode(); return; }
+      }
+      for (const p of [ctx.presentation, ctx.viewer]) {
+        if (p.isOpen) { await p.returnToCode(); return; }
+      }
     }),
     vscode.commands.registerCommand('mermaidForge.comments.add', async () => {
       await runAddCommentCommand(ctx.commentStore);
-      ctx.studio.refreshComments();
+      void ctx.studio.refreshComments();
+      for (const p of [ctx.preview, ctx.viewer, ctx.presentation]) void p.pushComments();
     }),
     vscode.commands.registerCommand('mermaidForge.generateFromCode', () => runGenerateFromCodeCommand()),
     vscode.commands.registerCommand('mermaidForge.generateFromGitHistory', () => runGitHistoryTimelineCommand()),
@@ -82,23 +157,19 @@ export function registerCommands(ctx: CommandContext): void {
         return [vscode.TextEdit.replace(fullRange, formatted)];
       },
     }),
-    vscode.commands.registerCommand('mermaidForge.formatDocument', async () => {
-      const editor = vscode.window.activeTextEditor;
-      if (!editor) return;
-      await vscode.commands.executeCommand('editor.action.formatDocument');
+    // Range formatting makes "Format Selection" work from VS Code's own menu/shortcut in .mmd files too.
+    vscode.languages.registerDocumentRangeFormattingEditProvider(formatterSelector, {
+      provideDocumentRangeFormattingEdits(document, range) {
+        const config = vscode.workspace.getConfiguration('mermaidForge');
+        if (!config.get<boolean>('formatter.enabled', true)) return [];
+        const endLine = range.end.character === 0 && range.end.line > range.start.line ? range.end.line - 1 : range.end.line;
+        const r = formatRange(document.getText(), range.start.line, endLine, { indentSize: config.get<number>('formatter.indentSize', 2) });
+        const full = new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length));
+        return [vscode.TextEdit.replace(full, r.text)];
+      },
     }),
-    vscode.commands.registerCommand('mermaidForge.formatSelection', async () => {
-      const editor = vscode.window.activeTextEditor;
-      if (!editor || editor.selection.isEmpty) {
-        vscode.window.showInformationMessage('Select some Mermaid text first.');
-        return;
-      }
-      const config = vscode.workspace.getConfiguration('mermaidForge');
-      const indentSize = config.get<number>('formatter.indentSize', 2);
-      const selectedText = editor.document.getText(editor.selection);
-      const formatted = formatMermaid(selectedText, { indentSize });
-      await editor.edit((builder) => builder.replace(editor.selection, formatted));
-    }),
+    vscode.commands.registerCommand('mermaidForge.formatDocument', () => runFormatCommand(false)),
+    vscode.commands.registerCommand('mermaidForge.formatSelection', () => runFormatCommand(true)),
     vscode.workspace.onWillSaveTextDocument((e) => {
       const config = vscode.workspace.getConfiguration('mermaidForge');
       if (e.document.languageId !== 'mermaid' || !config.get<boolean>('formatter.formatOnSave', false)) return;
@@ -153,7 +224,16 @@ export function registerCommands(ctx: CommandContext): void {
 
   // ---- Export -----------------------------------------------------------
   context.subscriptions.push(
-    vscode.commands.registerCommand('mermaidForge.exportDiagram', () => runExportCommand(ctx.preview)),
+    vscode.commands.registerCommand('mermaidForge.exportDiagram', (arg?: { format?: string; from?: string }) => {
+      const from = arg?.from;
+      const panel =
+        from === 'studio' ? ctx.studio
+        : from === 'viewer' ? ctx.viewer
+        : from === 'presentation' ? ctx.presentation
+        : from === 'preview' ? ctx.preview
+        : [ctx.preview, ctx.viewer, ctx.studio, ctx.presentation].find((p) => p.isOpen && p.isVisible) ?? [ctx.preview, ctx.viewer, ctx.studio, ctx.presentation].find((p) => p.isOpen) ?? ctx.preview;
+      return runExportCommand(panel, arg?.format, () => (panel === ctx.studio ? ctx.studio.updateDiagramNow() : ctx.preview.updateNow()));
+    }),
   );
 
   // ---- Draw.io import ------------------------------------------------------

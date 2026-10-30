@@ -172,3 +172,26 @@ export function clearPresentationDimming(root: ParentNode): void {
 function setDimmed(el: Element, dimmed: boolean): void {
   el.classList.toggle(DIMMED_CLASS, dimmed);
 }
+
+
+/**
+ * Elements for the given node ids in a rendered diagram, using the same id schemes as presentation mode (so comment badges
+ * and dimming agree). Sequence diagrams use the participant boxes. Kinds with no recognisable node ids return an empty map.
+ */
+export function findNodeElements(root: ParentNode, kind: string, ids: ReadonlySet<string>): Map<string, Element> {
+  const out = new Map<string, Element>();
+  if (kind === 'sequenceDiagram') {
+    root.querySelectorAll('rect.actor-top[name]').forEach((el) => {
+      const name = el.getAttribute('name') ?? '';
+      if (ids.has(name)) out.set(name, el);
+    });
+    return out;
+  }
+  const matchers = (MATCHERS as Record<string, KindMatchers | undefined>)[kind];
+  if (!matchers) return out;
+  root.querySelectorAll('[id]').forEach((el) => {
+    const nodeId = matchers.node(stripRenderPrefix(el.id), el);
+    if (nodeId !== null && ids.has(nodeId) && !out.has(nodeId)) out.set(nodeId, el);
+  });
+  return out;
+}

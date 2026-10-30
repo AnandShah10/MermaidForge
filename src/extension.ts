@@ -6,7 +6,7 @@ import { DiagnosticsController } from './workspace/diagnostics';
 import { SecretsManager } from './utils/secrets';
 import { Logger } from './utils/logger';
 import { registerCommands } from './commands/registerCommands';
-import { extractDiagramSourceForActiveEditor } from './workspace/activeDiagram';
+import { extractDiagramSourceForActiveEditor, rememberEditor } from './workspace/activeDiagram';
 import { CommentStore } from './comments/commentStore';
 import { VsCodeCommentFileStore } from './comments/vscodeFileStore';
 
@@ -22,27 +22,30 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     logger.info('No workspace folder is open — diagram comments will only persist for this session.');
   }
 
-  const preview = new PreviewPanel(context.extensionUri, output);
+  const preview = new PreviewPanel(context.extensionUri, output, commentStore, 'preview');
+  const viewer = new PreviewPanel(context.extensionUri, output, commentStore, 'viewer');
+  const presentation = new PreviewPanel(context.extensionUri, output, commentStore, 'presentation');
   const studio = new StudioPanel(context.extensionUri, secrets, logger, commentStore);
   const indexer = new DiagramIndexer();
   const diagnostics = new DiagnosticsController();
 
-  context.subscriptions.push(preview, studio, indexer, diagnostics);
+  context.subscriptions.push(preview, viewer, presentation, studio, indexer, diagnostics);
 
-  registerCommands({ extensionContext: context, preview, studio, indexer, diagnostics, secrets, logger, commentStore });
+  registerCommands({ extensionContext: context, preview, viewer, presentation, studio, indexer, diagnostics, secrets, logger, commentStore });
 
-  // Keep the preview / Studio canvas in sync with the active editor.
+  // Keep every open diagram view in sync with the editors.
+  const panels = [preview, viewer, presentation];
+  rememberEditor(vscode.window.activeTextEditor);
   context.subscriptions.push(
-    vscode.window.onDidChangeActiveTextEditor(() => {
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      rememberEditor(editor);
       preview.updateNow();
       studio.updateDiagramNow();
     }),
     vscode.workspace.onDidChangeTextDocument((e) => {
+      for (const p of panels) if (p.follows(e.document)) p.scheduleUpdate();
       const active = extractDiagramSourceForActiveEditor();
-      if (active && e.document === active.editor.document) {
-        preview.scheduleUpdate();
-        studio.updateDiagramNow();
-      }
+      if (active && e.document === active.editor.document) studio.updateDiagramNow();
     }),
   );
 

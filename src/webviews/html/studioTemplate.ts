@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { TOOLBAR_CSS } from './previewTemplate';
 
 function nonce(): string {
   let text = '';
@@ -11,7 +12,7 @@ export function buildStudioHtml(webview: vscode.Webview, previewScriptUri: vscod
   const nonceValue = nonce();
   const csp = [
     `default-src 'none'`,
-    `img-src ${webview.cspSource} data:`,
+    `img-src ${webview.cspSource} data: blob:`,
     `style-src ${webview.cspSource} 'unsafe-inline'`,
     `script-src 'nonce-${nonceValue}'`,
     `font-src ${webview.cspSource}`,
@@ -25,14 +26,15 @@ export function buildStudioHtml(webview: vscode.Webview, previewScriptUri: vscod
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MermaidForge Studio</title>
 <style>
+${TOOLBAR_CSS}
   :root { color-scheme: light dark; }
   html, body { height: 100%; margin: 0; padding: 0; font-family: var(--vscode-font-family); color: var(--vscode-foreground); background: var(--vscode-editor-background); }
   #layout { display: grid; grid-template-columns: 1fr 340px; height: 100vh; }
   #canvas-pane { position: relative; overflow: hidden; border-right: 1px solid var(--vscode-panel-border); }
-  #diagram-container { position: absolute; inset: 0; overflow: hidden; cursor: grab; }
-  #diagram-svg-host { position: absolute; top: 50%; left: 50%; transform-origin: center center; transform: translate(-50%, -50%); }
+  #diagram-container { position: absolute; inset: 34px 0 0 0; overflow: hidden; cursor: grab; }
+  #diagram-svg-host { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
   #diagram-svg-host svg { max-width: none !important; }
-  #error-panel { display: none; position: absolute; top: 0; left: 0; right: 0; padding: 10px 14px; background: var(--vscode-inputValidation-errorBackground); color: var(--vscode-inputValidation-errorForeground); font-size: 12px; white-space: pre-wrap; z-index: 10; }
+  #error-panel { display: none; position: absolute; left: 0; right: 0; padding: 10px 14px; top: 34px; background: var(--vscode-inputValidation-errorBackground); color: var(--vscode-inputValidation-errorForeground); font-size: 12px; white-space: pre-wrap; z-index: 10; }
   #sidebar { display: flex; flex-direction: column; height: 100vh; }
   #tabs { display: flex; border-bottom: 1px solid var(--vscode-panel-border); }
   .tab { flex: 1; padding: 8px 4px; text-align: center; cursor: pointer; font-size: 12px; opacity: 0.7; user-select: none; }
@@ -65,9 +67,10 @@ export function buildStudioHtml(webview: vscode.Webview, previewScriptUri: vscod
   .comments-empty { opacity: 0.6; }
 </style>
 </head>
-<body>
+<body data-mode="studio">
   <div id="layout">
     <div id="canvas-pane">
+      <div id="mf-toolbar"></div>
       <div id="error-panel"></div>
       <div id="diagram-container"><div id="diagram-svg-host"></div></div>
     </div>
